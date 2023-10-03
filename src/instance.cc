@@ -10,7 +10,34 @@ namespace wvm
     {
     }
 
-    void Instance::instantiate(){
+    std::shared_ptr<wvm::Runtime> Instance::instantiate()
+    {
+        std::shared_ptr<wvm::Runtime> runtime_ptr = std::make_shared<wvm::Runtime>(module_ptr);
+        /* func */
+        for (auto i = 0; i < module_ptr->funcDefs.size(); ++i)
+        {
+            const auto typeIdx = module_ptr->funcTypesIndices.at(i);
+            const auto &funcType = module_ptr->funcTypes.at(typeIdx);
+            const auto codeEntry = module_ptr->funcDefs.at(i).body.data();
+            // Wasm types -> RT types (value).
+            runtime_ptr->rtFuncDescriptor.emplace_back(&funcType, codeEntry);
+        }
 
+        /* entry point */
+        const auto entryFunc = std::find_if(
+            module_ptr->exports.begin(),
+            module_ptr->exports.end(),
+            [](auto &item) -> bool
+            {
+                return item.name == "add" && item.extKind == EXT_KIND_FUNC;
+            });
+
+        const auto funcIdx = entryFunc->extIdx;
+        if (entryFunc != module_ptr->exports.end())
+        {
+            runtime_ptr->rtEntryIdx = funcIdx;
+        }
+        return runtime_ptr;
     };
+
 }

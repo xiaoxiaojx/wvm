@@ -70,6 +70,8 @@
         "stack": "cpp",
         "variant": "cpp",
         "map": "cpp",
-        "__tree": "cpp"
+        "__tree": "cpp",
+        "filesystem": "cpp",
+        "cfenv": "cpp"
     }
 }

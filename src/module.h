@@ -80,6 +80,15 @@ namespace wvm
         ImportSec(std::string modName, std::string name, uint8_t extKind)
             : modName(modName), name(name), extKind(extKind) {}
     };
+
+    struct GlobalSec
+    {
+        SET_STRUCT_MOVE_ONLY(GlobalSec)
+        GlobalType globalType;
+        std::vector<uint8_t> initOpCodes; // Used in instantiation stage.
+        GlobalSec(uint8_t valType, bool mutability, std::vector<uint8_t> &initOpCodes)
+            : globalType({valType, mutability}), initOpCodes(initOpCodes) {}
+    };
     struct ExportSec
     {
         SET_STRUCT_MOVE_ONLY(ExportSec)
@@ -103,7 +112,7 @@ namespace wvm
         std::vector<uint32_t> funcTypesIndices;
         std::vector<ExportSec> exports;
         std::vector<FuncDefSec> funcDefs;
-
+        std::vector<GlobalSec> globals;
         std::shared_ptr<Decoder> decoder();
 
         void parseMagicNumber();
@@ -120,6 +129,11 @@ namespace wvm
 
         static bool byteArrayEq(const std::vector<uint8_t> &input1, const std::vector<uint8_t> &input2);
     };
+
+    using shared_module_t = std::shared_ptr<Module>;
+    using type_seq_t = std::vector<uint8_t>;
+    using external_kind_t = std::variant<uint32_t, TableType, MemType, GlobalType>; // the first one is func idx.
+    using func_type_t = std::pair<type_seq_t, type_seq_t>;
 }
 
 #endif // SRC_MODULE_H_
