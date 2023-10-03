@@ -2,11 +2,15 @@
 
 namespace wvm
 {
-    Instance::Instance()
+    Instance::Instance(std::shared_ptr<Module> module_ptr) : module_ptr(module_ptr)
     {
     }
 
     Instance::~Instance()
     {
     }
+
+    void Instance::instantiate(){
+
+    };
 }
