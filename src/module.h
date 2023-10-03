@@ -3,10 +3,14 @@
 
 #include <string>
 #include <fstream>
-
+#include <vector>
 #include "decoder.h"
 
+#define MAGIC_NUMBER std::vector<uint8_t>({0x00, 0x61, 0x73, 0x6d})
+#define WASM_VERSION std::vector<uint8_t>({0x01, 0x00, 0x00, 0x00})
+
 #define WVM_KEEPALIVE __attribute__((used))
+
 #define SET_STRUCT_DISABLE_COPY_CONSTUCT(TypeName) \
     TypeName(const TypeName &) = delete;           \
     TypeName &operator=(const TypeName &) = delete
@@ -58,7 +62,14 @@ namespace wvm
     using type_seq_t = std::vector<uint8_t>;
     using external_kind_t = std::variant<uint32_t, TableType, MemType, GlobalType>;
     using func_type_t = std::pair<type_seq_t, type_seq_t>;
-
+    struct FuncDefSec
+    {
+        SET_STRUCT_MOVE_ONLY(FuncDefSec)
+        std::vector<uint8_t> locals;
+        std::vector<uint8_t> body;
+        FuncDefSec(std::vector<uint8_t> &locals, std::vector<uint8_t> &body)
+            : locals(locals), body(body) {}
+    };
     struct ImportSec
     {
         SET_STRUCT_MOVE_ONLY(ImportSec)
@@ -69,7 +80,15 @@ namespace wvm
         ImportSec(std::string modName, std::string name, uint8_t extKind)
             : modName(modName), name(name), extKind(extKind) {}
     };
-    
+    struct ExportSec
+    {
+        SET_STRUCT_MOVE_ONLY(ExportSec)
+        std::string name;
+        uint8_t extKind;
+        uint32_t extIdx;
+        ExportSec(std::string name, uint8_t extKind, uint32_t extIdx)
+            : name(name), extKind(extKind), extIdx(extIdx) {}
+    };
     class Module
     {
     private:
@@ -82,6 +101,8 @@ namespace wvm
         std::vector<func_type_t> funcTypes;
         std::vector<ImportSec> imports;
         std::vector<uint32_t> funcTypesIndices;
+        std::vector<ExportSec> exports;
+        std::vector<FuncDefSec> funcDefs;
 
         std::shared_ptr<Decoder> decoder();
 
@@ -93,8 +114,11 @@ namespace wvm
         void parseFunctionSection();
         void parseTableSection();
         void parseMemorySection();
+        void parseGlobalSection();
+        void parseExportSection();
+        void parseCodeSection();
 
-        static bool byteArrayEq(const std::vector<char> &input1, const std::vector<char> &input2);
+        static bool byteArrayEq(const std::vector<uint8_t> &input1, const std::vector<uint8_t> &input2);
     };
 }
 

@@ -1,0 +1,12 @@
+CMakeFiles/
+cmake_install.cmake
+CmakeCache.txt
+Makefile
+install_manifest.txt
+googletest*/
+.DS_Store
+node_modules/
+*.dSYM/
+*.a
+/build*
+wvm

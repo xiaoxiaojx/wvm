@@ -21,9 +21,10 @@ namespace wvm
         ~Decoder();
 
         std::ifstream &readable();
-        std::vector<char> readBytes(char n);
 
+        std::vector<uint8_t> readBytes(uint8_t n);
         uint8_t readByte();
+        std::string readStringByBytes(size_t n);
 
         template <typename U>
         static std::vector<uint8_t> retrievePackedLEB128Bytes(U &&in)
@@ -99,9 +100,9 @@ namespace wvm
             return val;
         }
 
-#define WALK_FUNC_DEF(name, type, suffix)                   \
+#define WALK_FUNC_DEF(name, type, suffix)          \
     type read##name()                              \
-    {                                                       \
+    {                                              \
         return decodeVar##suffix<type>(readable_); \
     }
 

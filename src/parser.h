@@ -2,12 +2,14 @@
 #define SRC_PARSER_
 
 #include <string>
+#include <fstream>
+#include <iostream>
 
-#include "module.h"
+#include "log.h"
 
 namespace wvm
 {
-    template <typename ModuleType>
+    template <typename ModuleType, typename DecoderType>
     class Parser
     {
     private:
@@ -21,6 +23,43 @@ namespace wvm
 
         std::shared_ptr<ModuleType> parse();
     };
+
+    template <typename ModuleType, typename DecoderType>
+    Parser<ModuleType, DecoderType>::Parser(std::string file_name) : file_name_(file_name)
+    {
+    }
+
+    template <typename ModuleType, typename DecoderType>
+    Parser<ModuleType, DecoderType>::~Parser()
+    {
+    }
+
+    template <typename ModuleType, typename DecoderType>
+    std::string Parser<ModuleType, DecoderType>::file_name()
+    {
+        return file_name_;
+    }
+
+    template <typename ModuleType, typename DecoderType>
+    std::shared_ptr<ModuleType> Parser<ModuleType, DecoderType>::parse()
+    {
+        std::ifstream readable{file_name_, std::ifstream::binary};
+
+        if (!readable.is_open())
+        {
+            LOG("failed to open file.");
+            return NULL;
+        }
+
+        std::shared_ptr<DecoderType> decoder_ptr = std::make_shared<DecoderType>(readable);
+
+        std::shared_ptr<ModuleType> module_ptr = std::make_shared<ModuleType>(decoder_ptr);
+        module_ptr->parseMagicNumber();
+        module_ptr->parseVersion();
+        module_ptr->parseSection();
+
+        return module_ptr;
+    }
 }
 
 #endif // SRC_PARSER_
