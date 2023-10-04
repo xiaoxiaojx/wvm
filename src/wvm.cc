@@ -1,4 +1,6 @@
 #include <string>
+#include <tuple>
+
 #include "parser.h"
 #include "module.h"
 #include "decoder.h"
@@ -19,6 +21,12 @@ int main(int argc, char *argv[])
 
     /** execute module */
     std::shared_ptr<wvm::Executor> executor_ptr = std::make_shared<wvm::Executor>(runtime_ptr);
-    executor_ptr->execute(std::optional<uint32_t>{});
+    wvm::Executor::engine_result_t ret = executor_ptr->execute(std::optional<uint32_t>{});
+
+    /** print result */
+    if (ret.has_value())
+    {
+        std::cout << std::get<int>(ret.value()) << std::endl;
+    }
     return 0;
 }

@@ -39,7 +39,6 @@ namespace wvm
 {
     class Executor
     {
-        using engine_result_t = const std::optional<Runtime::runtime_value_t>;
         enum class EngineStatus : uint8_t
         {
             EXECUTING,
@@ -74,6 +73,7 @@ namespace wvm
     public:
         Executor(std::shared_ptr<Runtime>);
         Executor(uint8_t *pc, shared_module_runtime_t rtIns);
+        using engine_result_t = const std::optional<Runtime::runtime_value_t>;
 
         const auto getCurrentStatus() const { return status; }
         const void stopEngine();
