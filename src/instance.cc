@@ -1,5 +1,5 @@
 #include "instance.h"
-
+#include "log.h"
 namespace wvm
 {
     Instance::Instance(std::shared_ptr<Module> module_ptr) : module_ptr(module_ptr)
@@ -12,8 +12,11 @@ namespace wvm
 
     std::shared_ptr<wvm::Runtime> Instance::instantiate()
     {
+        LOG("-> instantiate");
         std::shared_ptr<wvm::Runtime> runtime_ptr = std::make_shared<wvm::Runtime>(module_ptr);
+
         /* func */
+        LOG(" -> func");
         for (auto i = 0; i < module_ptr->funcDefs.size(); ++i)
         {
             const auto typeIdx = module_ptr->funcTypesIndices.at(i);
@@ -38,6 +41,7 @@ namespace wvm
             {
                 return item.name == "add" && item.extKind == EXT_KIND_FUNC;
             });
+        LOG(" -> entryFuc: ", entryFunc->name);
 
         const auto funcIdx = entryFunc->extIdx;
         if (entryFunc != module_ptr->exports.end())

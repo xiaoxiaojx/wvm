@@ -207,6 +207,6 @@ namespace wvm
     ITERATE_ALL_OPCODE(DECLARE_NAMED_ENUM)
   };
 
-} // namespace TWVM
+}
 
 #endif //   SRC_OPCODES_H_

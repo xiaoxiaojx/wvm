@@ -3,10 +3,12 @@
 
 #include <optional>
 #include <unordered_map>
+#include <tuple>
 
 #include "instance.h"
 #include "opcodes.h"
 #include "module.h"
+#include "log.h"
 
 constexpr uint8_t MAGIC_BYTES_COUNT = 4;
 constexpr uint8_t VER_BYTES_COUNT = 4;
@@ -28,12 +30,6 @@ constexpr uint8_t MAGIC_VAR_INDEX_PLUS_TYPE = 0x7f;
 constexpr auto SCREEN_ARG_SETW_OFFSET = 23;
 constexpr auto INPUT_ENTRY_KEY_NAME = "entryFuncName";
 constexpr auto INPUT_ENTRY_KEY_ARG = "entryArgs";
-
-#define DECLARE_OPCODE_HANDLER_VALID(NAME) \
-    static void do##NAME(Executor &, op_handler_info_t = std::nullopt);
-#define DECLARE_OPCODE_HANDLER_INVALID(NAME)
-#define DECLARE_OPCODE_HANDLER(NAME, OP, VALDITI) \
-    DECLARE_OPCODE_HANDLER_##VALDITI(NAME)
 
 namespace wvm
 {
@@ -171,8 +167,6 @@ namespace wvm
         {
             try
             {
-
-                std::cout << "rtIns->stack.size: " << rtIns->stack.size() << std::endl;
                 return std::get<T>(
                     rtIns->stack.at(rtIns->stack.size() - 1 - pos));
             }
@@ -351,9 +345,12 @@ namespace wvm
             {
                 auto &x = std::get<Runtime::RTValueFrame>(rtIns->stack.back());                      // "c2".
                 auto &y = std::get<Runtime::RTValueFrame>(rtIns->stack.at(rtIns->stack.size() - 2)); // "c1".
+                LOG("   -> x: ", std::get<int>(x.value), ",y: ", std::get<int>(y.value));
+
                 auto ret = handler(std::get<T>(y.value), std::get<T>(x.value));
                 rtIns->stack.pop_back(); // Keep "c1" on the stage.
                 y.value = ret;
+                LOG("   -> ret: ", std::get<int>(y.value));
             }
             catch (...)
             {
@@ -377,14 +374,6 @@ namespace wvm
         }
         engine_result_t postProcess();
         engine_result_t execute(std::optional<uint32_t> = {});
-    };
-
-    struct Interpreter
-    {
-        using op_handler_proto_t = void (*)(Executor &, std::optional<uint32_t>);
-        using op_handler_info_t = std::optional<uint32_t>;
-        static std::array<op_handler_proto_t, sizeof(uint8_t) * 1 << 8> opTokenHandlers;
-        ITERATE_ALL_OPCODE(DECLARE_OPCODE_HANDLER)
     };
 }
 

@@ -6,6 +6,7 @@
 #include "decoder.h"
 #include "instance.h"
 #include "executor.h"
+#include "log.h"
 
 int main(int argc, char *argv[])
 {
@@ -26,7 +27,7 @@ int main(int argc, char *argv[])
     /** print result */
     if (ret.has_value())
     {
-        std::cout << std::get<int>(ret.value()) << std::endl;
+        LOG("ret: ", std::get<int>(ret.value()));
     }
     return 0;
 }

@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include "log.h"
 
 namespace wvm
 {
@@ -42,6 +43,7 @@ namespace wvm
     template <typename ModuleType, typename DecoderType>
     std::shared_ptr<ModuleType> Parser<ModuleType, DecoderType>::parse()
     {
+        LOG("-> parse");
         std::ifstream readable{file_name_, std::ifstream::binary};
 
         if (!readable.is_open())

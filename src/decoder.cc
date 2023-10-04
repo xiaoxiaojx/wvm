@@ -28,7 +28,6 @@ namespace wvm
         if (readable_.gcount() < static_cast<std::streamsize>(n))
         {
             std::cerr << "Error: Unable to read " << n << " bytes from the file." << std::endl;
-            // 可以在这里抛出异常或者进行其他错误处理操作
         }
 
         return buffer; // 返回读取到的字节数据

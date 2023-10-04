@@ -43,6 +43,7 @@ namespace wvm
         {
             throw std::runtime_error("magic header not detected");
         }
+        LOG(" -> parseMagicNumber: ", buffer);
     }
 
     void Module::parseVersion()
@@ -52,16 +53,18 @@ namespace wvm
         {
             throw std::runtime_error("unknown binary version");
         }
+        LOG(" -> parseVersion: ", buffer);
     }
 
     void Module::parseSection()
     {
-        LOG("parseSection start");
+        LOG(" -> parseSection");
+
         while (!decoder_->readable().eof())
         {
             Section sectionId = static_cast<Section>(decoder_->readByte());
-            LOG("sectionId: ", static_cast<int>(sectionId));
 
+            LOG("  -> parseSectionId: ", static_cast<int>(sectionId));
             switch (sectionId)
             {
             case Section::type:
@@ -74,40 +77,33 @@ namespace wvm
                 break;
             case Section::func:
                 /* Function section -> https://webassembly.github.io/spec/core/binary/modules.html#function-section */
-                LOG("parseFunctionSection");
                 parseFunctionSection();
                 break;
             case Section::table:
                 /* Table section -> https://webassembly.github.io/spec/core/binary/modules.html#table-section */
-                LOG("parseTableSection");
                 parseTableSection();
                 break;
             case Section::memory:
                 /* Memory section -> https://webassembly.github.io/spec/core/binary/modules.html#memory-section */
-                LOG("parseMemorySection");
                 parseMemorySection();
                 break;
             case Section::global:
                 /* Global section -> https://webassembly.github.io/spec/core/binary/modules.html#global-section */
-                LOG("parseGlobalSection");
                 parseGlobalSection();
 
             case Section::export_section:
                 /* Export section -> https://webassembly.github.io/spec/core/binary/modules.html#export-section */
-                LOG("parseExportSection");
                 parseExportSection();
                 break;
 
             case Section::code:
                 /* Code section -> https://webassembly.github.io/spec/core/binary/modules.html#binary-codesec */
-                LOG("parseCodeSection");
                 parseCodeSection();
                 break;
             default:
                 break;
             }
         }
-        LOG("parseSection end");
         decoder_->readable().close();
     }
     // ; func type 0
