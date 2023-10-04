@@ -21,6 +21,13 @@ namespace wvm
             const auto codeEntry = module_ptr->funcDefs.at(i).body.data();
             // Wasm types -> RT types (value).
             runtime_ptr->rtFuncDescriptor.emplace_back(&funcType, codeEntry);
+
+            runtime_ptr->expandWasmTypesToRTValues(
+                runtime_ptr->rtFuncDescriptor.back().localsDefault,
+                // 参数类型
+                funcType.first,
+                // 内部变量
+                module_ptr->funcDefs.at(i).locals);
         }
 
         /* entry point */
@@ -37,6 +44,14 @@ namespace wvm
         {
             runtime_ptr->rtEntryIdx = funcIdx;
         }
+        const auto &inputFuncArgTypes = runtime_ptr->rtFuncDescriptor.at(funcIdx).funcType->first;
+
+        runtime_ptr->stack.push_back(
+            Runtime::RTValueFrame{
+                runtime_ptr->convertStrToRTVal("1", inputFuncArgTypes[0])});
+        runtime_ptr->stack.push_back(
+            Runtime::RTValueFrame{
+                runtime_ptr->convertStrToRTVal("2", inputFuncArgTypes[1])});
         return runtime_ptr;
     };
 

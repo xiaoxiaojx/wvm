@@ -8,6 +8,13 @@ constexpr uint8_t EXT_KIND_FUNC = 0x0;
 
 namespace wvm
 {
+    enum class ValueTypes : uint8_t
+    {
+        I32 = 0x7f,
+        I64 = 0x7e,
+        F32 = 0x7d,
+        F64 = 0x7c,
+    };
     struct Runtime
     {
         enum class STVariantIndex : int8_t
@@ -69,6 +76,53 @@ namespace wvm
             RTMemHolder(size_t size, uint8_t *ptr, uint32_t maximumPages)
                 : size(size), ptr(ptr), maximumPages(maximumPages) {}
         };
+        Runtime::runtime_value_t convertStrToRTVal(const std::string &str, uint8_t type)
+        {
+            switch (static_cast<ValueTypes>(type))
+            {
+            case ValueTypes::I32:
+                return static_cast<Runtime::rt_i32_t>(std::stoi(str));
+            case ValueTypes::I64:
+                return static_cast<Runtime::rt_i64_t>(std::stol(str));
+            case ValueTypes::F32:
+                return static_cast<Runtime::rt_f32_t>(std::stof(str));
+            case ValueTypes::F64:
+                return static_cast<Runtime::rt_f64_t>(std::stod(str));
+            }
+        }
+        template <typename T>
+        void expandVTypesToRTVals(std::vector<Runtime::runtime_value_t> &container, T &t)
+        {
+            if constexpr (
+                std::is_same_v<std::decay_t<T>, std::vector<uint8_t>>)
+            {
+                for (const auto i : t)
+                {
+                    switch (static_cast<ValueTypes>(i))
+                    {
+                    case ValueTypes::I32:
+                        container.push_back(Runtime::rt_i32_t());
+                        break;
+                    case ValueTypes::I64:
+                        container.push_back(Runtime::rt_i64_t());
+                        break;
+                    case ValueTypes::F32:
+                        container.push_back(Runtime::rt_f32_t());
+                        break;
+                    case ValueTypes::F64:
+                        container.push_back(Runtime::rt_f64_t());
+                        break;
+                    }
+                }
+            }
+        }
+        template <typename... Args>
+        void expandWasmTypesToRTValues(
+            std::vector<Runtime::runtime_value_t> &container,
+            Args &...args)
+        {
+            (expandVTypesToRTVals(container, args), ...);
+        }
         shared_module_t module;
         std::vector<RTMemHolder> rtMems;
         std::vector<std::vector<std::optional<uint32_t>>> rtTables; // Func idx inside.

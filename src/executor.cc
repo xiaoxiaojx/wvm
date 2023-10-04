@@ -642,6 +642,8 @@ namespace wvm
         const auto &descriptor = executor.getEngineData()->rtFuncDescriptor.at(idx);
         auto paramCount = descriptor.funcType->first.size();
         auto rtLocals = descriptor.localsDefault; // Copied.
+        std::cout << "doCall rtLocals.size: " << rtLocals.size() << std::endl;
+
         // Set up func parameters.
         if (paramCount > 0)
         {
@@ -666,6 +668,7 @@ namespace wvm
                 &descriptor.funcType->second));
         // Redirection.
         executor.setPC(descriptor.codeEntry);
+        std::cout << "doCall executor.setPC: " << descriptor.codeEntry << std::endl;
     }
     void Interpreter::doCallIndirect(Executor &executor, op_handler_info_t _)
     {
