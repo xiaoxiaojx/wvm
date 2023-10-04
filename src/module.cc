@@ -1,3 +1,4 @@
+#include <stdexcept>
 
 #include "module.h"
 #include "log.h"
@@ -40,8 +41,7 @@ namespace wvm
         std::vector<uint8_t> buffer = decoder_->readBytes(4);
         if (!byteArrayEq(MAGIC_NUMBER, buffer))
         {
-            LOG("magic header not detected");
-            std::exit(1);
+            throw std::runtime_error("magic header not detected");
         }
     }
 
@@ -50,8 +50,7 @@ namespace wvm
         std::vector<uint8_t> buffer = decoder_->readBytes(4);
         if (!byteArrayEq(WASM_VERSION, buffer))
         {
-            LOG("unknown binary version");
-            std::exit(1);
+            throw std::runtime_error("unknown binary version");
         }
     }
 
@@ -61,7 +60,7 @@ namespace wvm
         while (!decoder_->readable().eof())
         {
             Section sectionId = static_cast<Section>(decoder_->readByte());
-            std::cout << "sectionId: " << static_cast<int>(sectionId) << std::endl;
+            LOG("sectionId: ", static_cast<int>(sectionId));
 
             switch (sectionId)
             {

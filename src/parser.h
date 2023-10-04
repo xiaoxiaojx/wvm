@@ -4,8 +4,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-
-#include "log.h"
+#include <stdexcept>
 
 namespace wvm
 {
@@ -47,8 +46,7 @@ namespace wvm
 
         if (!readable.is_open())
         {
-            LOG("failed to open file.");
-            return NULL;
+            throw std::runtime_error("failed to open file.");
         }
 
         std::shared_ptr<DecoderType> decoder_ptr = std::make_shared<DecoderType>(readable);
